@@ -384,7 +384,8 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
 
         // generate files based on processed models
         for (String modelName : allProcessedModels.keySet()) {
-            Map<String, Object> models = (Map<String, Object>) allProcessedModels.get(modelName);
+            @SuppressWarnings("unchecked")
+			Map<String, Object> models = (Map<String, Object>) allProcessedModels.get(modelName);
             models.put("modelPackage", config.modelPackage());
             try {
                 //don't generate models that have an import mapping

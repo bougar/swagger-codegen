@@ -376,6 +376,9 @@ public class PythonClientCodegen extends DefaultCodegen implements CodegenConfig
     @Override
     public String getSwaggerType(Property p) {
         String swaggerType = super.getSwaggerType(p);
+        if (swaggerType == null) {
+        	swaggerType = "string";
+        }
         String type = null;
         if (typeMapping.containsKey(swaggerType)) {
             type = typeMapping.get(swaggerType);

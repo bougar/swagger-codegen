@@ -1,10 +1,7 @@
 # coding: utf-8
-
 {{>partial_header}}
-
 import pprint
 import re  # noqa: F401
-
 import six
 {{#imports}}{{#-first}}
 {{/-first}}
@@ -41,31 +38,48 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
 {{/vars}}
     }
 
+{{#parentModel}}
+    parent_swagger_types = {{classname}}.swagger_types
+
+    swagger_types.update(parent_swagger_types)
+
+{{/parentModel}}
     attribute_map = {
 {{#vars}}
         '{{name}}': '{{baseName}}'{{#hasMore}},{{/hasMore}}
 {{/vars}}
     }
-{{#discriminator}}
 
+{{#parentModel}}
+    parent_attribute_map = {{classname}}.attribute_map
+
+    attribute_map.update(parent_attribute_map)
+{{/parentModel}}
+{{#discriminator}}
     discriminator_value_class_map = {
         {{#children}}'{{^vendorExtensions.x-discriminator-value}}{{name}}{{/vendorExtensions.x-discriminator-value}}{{#vendorExtensions.x-discriminator-value}}{{{vendorExtensions.x-discriminator-value}}}{{/vendorExtensions.x-discriminator-value}}': '{{{classname}}}'{{^-last}},
         {{/-last}}{{/children}}
     }
 {{/discriminator}}
 
-    def __init__(self{{#vars}}, {{name}}={{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}None{{/defaultValue}}{{/vars}}):  # noqa: E501
+    def __init__(self{{#vars}}, {{name}}={{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}None{{/defaultValue}}{{/vars}}{{#parentModel}}, **parent_kwargs{{/parentModel}}):  # noqa: E501
         """{{classname}} - a model defined in Swagger"""  # noqa: E501
 {{#vars}}{{#-first}}
 {{/-first}}
         self._{{name}} = None
 {{/vars}}
         self.discriminator = {{#discriminator}}'{{discriminator}}'{{/discriminator}}{{^discriminator}}None{{/discriminator}}
-{{#vars}}{{#-first}}
-{{/-first}}
+
+{{#parentModel}}
+        super(self.__class__, self).__init__(**parent_kwargs)
+
+{{/parentModel}}
+{{#vars}}
 {{#required}}
         self.{{name}} = {{name}}
 {{/required}}
+{{/vars}}
+{{#vars}}
 {{^required}}
         if {{name}} is not None:
             self.{{name}} = {{name}}
@@ -169,7 +183,7 @@ class {{classname}}({{#parent}}{{parent}}{{/parent}}{{^parent}}object{{/parent}}
 {{#discriminator}}
     def get_real_child_model(self, data):
         """Returns the real base class specified by the discriminator"""
-        discriminator_value = data[self.discriminator].lower()
+        discriminator_value = data[self.discriminator]
         return self.discriminator_value_class_map.get(discriminator_value)
 
 {{/discriminator}}
